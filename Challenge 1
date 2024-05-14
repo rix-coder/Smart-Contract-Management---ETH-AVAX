@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract Challenge1 {
+    uint256 public num; // Making num public for visibility
+
+    function InputNumber(uint256 _inputNum) external {
+        num = _inputNum;
+    }
+
+    function Subtraction() external view returns (uint256) {
+        uint256 result = num - num;
+        return result;
+    }
+}
