@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
+
+contract Challenge2 {
+    uint256 public data;
+
+    function setData(uint256 _data) external {
+        data = _data;
+    }
+
+    function getData() external view returns (uint256) {
+        return data;
+    }
+}
+
+
+contract MyContractProxy {
+    address public implementation;
+    address public owner;
+
+    constructor(address _implementation) {
+        implementation = _implementation;
+        owner = msg.sender;
+    }
+
+  
+    fallback() external payable {
+        _delegate(implementation);
+    }
+
+    receive() external payable {
+        _delegate(implementation);
+    }
+
+   
+    function _delegate(address _implementation) private {
+        assembly {
+            
+            let ptr := mload(0x40)
+            calldatacopy(ptr, 0, calldatasize())
+
+           
+            let result := delegatecall(gas(), _implementation, ptr, calldatasize(), 0, 0)
+
+            
+            let size := returndatasize()
+            returndatacopy(ptr, 0, size)
+
+            
+            switch result
+            case 0 {
+                revert(ptr, size)
+            }
+            default {
+                return(ptr, size)
+            }
+        }
+    }
+
+    function upgradeImplementation(address _newImplementation) external {
+        require(msg.sender == owner, "Only the owner can upgrade");
+        implementation = _newImplementation;
+    }
+}
